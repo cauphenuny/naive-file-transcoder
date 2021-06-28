@@ -15,11 +15,11 @@ typedef unsigned long long u64_t;
 typedef   signed long long s64_t;
 
 u64_t file_getsize(const string& file_name) {
-	std::ifstream in(file_name.c_str());
-	in.seekg(0, std::ios::end);
-	u64_t size = in.tellg();
-	in.close();
-	return size;
+    std::ifstream in(file_name.c_str());
+    in.seekg(0, std::ios::end);
+    u64_t size = in.tellg();
+    in.close();
+    return size;
 }
 
 bool file_exist(const string& file_name) {
@@ -28,23 +28,23 @@ bool file_exist(const string& file_name) {
 }
 
 void file_clear(const string& file_name) {
-	if (file_exist(file_name)) {
-		std::ofstream out(file_name);
-		out.clear();
-	}
+    if (file_exist(file_name)) {
+        std::ofstream out(file_name);
+        out.clear();
+    }
 }
 
 string suffix(const string& str, const char& ch = '.') {
-	int pos = -1;
+    int pos = -1;
     for (int i = 0, l = str.length(); i < l; i++) if (str[i] == ch) pos = i;
     return str.substr(pos + 1);
 }
 
 string prefix(const string& str, const char& ch = '.') {
-	string res;
+    string res;
     for (int i = 0, l = str.length(); i < l; i++) {
-		if (str[i] == ch) res = str.substr(0, i);
-	}
+        if (str[i] == ch) res = str.substr(0, i);
+    }
     return res;
 }
 
