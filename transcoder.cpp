@@ -17,7 +17,7 @@
 
 using namespace std;
 
-constexpr char version[] = "v1.0.1";
+constexpr char version[] = "v1.0.2";
 
 void print_info() {
     cout << "transcoder " << version << endl;
@@ -28,7 +28,7 @@ void print_info() {
 constexpr u64_t split_limit = 2048;
 constexpr u64_t buffer_size = 1048576; // don't change it
 constexpr int key[] = {114, 5, 14, 19, 26, 0, 81, 7}, // don't change it
-              key_size = sizeof(key) / sizeof(int);
+              key_size = sizeof(key) / sizeof(decltype(key[0]));
 int key_pos;
 fstream infile, outfile;
 
