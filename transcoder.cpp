@@ -2,7 +2,7 @@
  * file:   transcode.cpp
  * author: starseekist (https://github.com/starseekist)
  *
- * last modified: Mon June 28 2021 23:14 GMT+0800 (CST)
+ * last modified: Sun July 4 2021 15:07 GMT+0800 (CST)
  */
 
 #include <iostream>
@@ -17,7 +17,7 @@
 
 using namespace std;
 
-constexpr char version[] = "v1.0";
+constexpr char version[] = "v1.0.1";
 
 void print_info() {
     cout << "transcoder " << version << endl;
@@ -34,6 +34,7 @@ fstream infile, outfile;
 
 void transcode(const string& input, const string& output, int limit = -1) { // main process
     cout << "[" << suffix(input, '\\') << "] ==> [" << suffix(output, '\\') << "] ...";
+    cout.flush();
     char buffer[buffer_size + 10];
     for (int i = 0; limit < 0 || i < limit; i++) {
         infile.read((char*)&buffer, buffer_size);
