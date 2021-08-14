@@ -1,8 +1,8 @@
 /*
  * file:   transcode.cpp
- * author: starseekist (https://github.com/starseekist)
+ * author: hydropek
  *
- * last modified: Sun July 4 2021 15:07 GMT+0800 (CST)
+ * last modified: Sat Aug 14 2021 16:22 GMT+0800 (CST)
  */
 
 #include <iostream>
@@ -21,7 +21,7 @@ constexpr char version[] = "v1.0.2";
 
 void print_info() {
     cout << "transcoder " << version << endl;
-    cout << "repo: https://github.com/starseekist/naive-file-transcoder" << endl;
+    cout << "repo: https://github.com/hydropek/naive-file-transcoder" << endl;
     cout << "-----------------------------" << endl << endl;
 }
 
