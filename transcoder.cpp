@@ -22,7 +22,7 @@
 
 using namespace std;
 
-constexpr char version[] = "v1.1.0";
+constexpr char version[] = "v1.2.0";
 
 typedef unsigned long long u64_t;
 typedef   signed long long s64_t;
@@ -70,7 +70,7 @@ int decode(string output) {
     {
         cout << "verifing key ... ";
         if (!metadata.is_open()) {
-            cout << "failed: no metadata" << endl << endl;
+            cout << "failed: no metadata" << endl;
         } else {
             cout << "ok" << endl;
             string tmp;
@@ -80,8 +80,8 @@ int decode(string output) {
             CRC32 crc32;
             crc32.add(key, sizeof(key));
             if ((tmp = metadata.get<string>("verification", "key")) != crc32.getHash()) {
-                printf("\nFATAL: key not matched: expected %s, but find %s.\n", crc32.getHash().c_str(), tmp.c_str());
-                return -1;
+                printf("\nFATAL: key not matched: expected %s, but find %s.\n", tmp.c_str(), crc32.getHash().c_str());
+                return 1;
             }
         }
     }
@@ -104,13 +104,24 @@ int decode(string output) {
             for (size_t i = 0; i < input_list.size(); i++) {
                 cout << "#" << i + 1 << " " << suffix(input_list[i], PATH_CHAR) << endl;
             }
-            cout << endl << endl;
+            cout << endl;
         }
-        for (auto input : input_list) {
-            infile.open(input, ios::in | ios::binary);
+        for (size_t i = 0; i < input_list.size(); i++) {
+            auto input = input_list[i];
             crc32_origin.reset();
+            infile.open(input, ios::in | ios::binary);
             transcode(input, output);
             infile.close();
+            if (metadata.is_open()) {
+                string pre = metadata.get<string>("verification", "part" + to_string(i)),
+                       cur = crc32_origin.getHash();
+                if (pre != cur) {
+                    cout << endl << "FATAL: crc-32 verification failed on [" + suffix(input, PATH_CHAR) + "]" << endl;
+                    cout << "   ==> expected " + pre + ", but find " + cur << "." << endl;
+                    outfile.close();
+                    return 100 + i;
+                }
+            }
         }
         outfile.close();
     }
@@ -119,15 +130,15 @@ int decode(string output) {
         cout << "verifying crc-32 ...";
         string cur = crc32_encrypt.getHash(), pre = "";
         if (metadata.is_open()) {
-            pre = metadata.get<string>("verification", "crc32");
+            pre = metadata.get<string>("verification", "origin");
         }
         if (pre == "" || cur == pre) {
             cout << " ok, " + cur << endl;
         } else {
             cout << " failed!" << endl << endl;
             cout << "FATAL: crc-32 verification failed on [" + suffix(output, PATH_CHAR) + "]" << endl;
-            cout << "   ==> expected " + cur + ", but find " + pre << "." << endl;
-            return -2;
+            cout << "   ==> expected " + pre + ", but find " + cur << "." << endl;
+            return 2;
         }
     }
     return 0;
@@ -158,10 +169,12 @@ int encode(const string& input) {
             output_list.push_back(input + ".trs");
         }
         infile.open(input, ios::in | ios::binary);
-        for (auto output : output_list) {
+        for (size_t i = 0; i < output_list.size(); i++) {
+            auto output = output_list[i];
             outfile.open(output, ios::out | ios::binary);
             crc32_encrypt.reset();
             transcode(input, output, split_limit);
+            metadata.put("verification", "part" + to_string(i), crc32_encrypt.getHash());
             outfile.close();
         }
         infile.close();
@@ -171,7 +184,7 @@ int encode(const string& input) {
         cout << "calculating crc32 ...";
         string res = crc32_origin.getHash();
         cout << " ok, " + res << endl;
-        metadata.put("verification", "crc32", res);
+        metadata.put("verification", "origin", res);
     }
     return 0;
 }
@@ -193,9 +206,9 @@ int main(int argc, char* argv[]) {
         ret = encode(file_name);
     }
     if (!ret) cout << endl << "completed!";
-    else cout << endl << "terminated with return status " << ret << ".";
+    else cout << endl << "terminated with return status -" << ret << ".";
     getchar();
-    return 0;
+    return ret;
 }
 
 u64_t file_getsize(const string& file_name) {

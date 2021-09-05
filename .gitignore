@@ -2,3 +2,4 @@ transcoder
 *.a
 *.o
 *.exe
+*.swp
